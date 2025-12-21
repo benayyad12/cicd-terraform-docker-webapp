@@ -36,7 +36,6 @@ module "ec2" {
   security_group_ids = [
     module.security_group.aws_security_group_id,
   ]
-  key_name = var.ssh_key_name
 }
 
 module "s3" {

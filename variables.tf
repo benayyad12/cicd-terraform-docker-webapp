@@ -61,9 +61,4 @@ variable "ssh_cidr" {
   default     = ""
 }
 
-variable "ssh_key_name" {
-  type        = string
-  description = "EC2 Key Pair name to enable SSH. Empty keeps key_name unset (SSH via key pair won't work)."
-  default     = ""
-}
 
