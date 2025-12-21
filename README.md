@@ -140,6 +140,3 @@ Destroy everything created by Terraform:
 terraform destroy -var-file=values.tfvars
 ```
 
-## License
-
-This repository is provided for learning and demonstration purposes.
