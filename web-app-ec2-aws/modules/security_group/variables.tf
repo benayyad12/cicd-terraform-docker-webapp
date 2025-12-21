@@ -1,0 +1,1 @@
+variable "wrapper_vpc_id" {}
