@@ -1,8 +1,42 @@
+data "aws_ami" "amazon_linux_2023_arm64" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-kernel-6.1-arm64"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["arm64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+}
+
+locals {
+  ec2_ami_id = var.ami != "" ? var.ami : data.aws_ami.amazon_linux_2023_arm64.id
+}
+
 module "ec2" {
   source        = "./modules/ec2"
-  ami_id        = var.ami
+  ami_id        = local.ec2_ami_id
   instance_type = var.instance_type
   docker_image  = var.docker_image
+  subnet_id     = module.vpc.public_subnet_id
+  security_group_ids = [
+    module.security_group.aws_security_group_id,
+  ]
+  key_name = var.ssh_key_name
 }
 
 module "s3" {
@@ -28,4 +62,5 @@ module "vpc" {
 module "security_group" {
   source         = "./modules/security_group"
   wrapper_vpc_id = module.vpc.vpc_id
+  ssh_cidr       = var.ssh_cidr
 }

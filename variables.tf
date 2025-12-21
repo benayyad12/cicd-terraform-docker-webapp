@@ -6,7 +6,8 @@ variable "region" {
 
 variable "ami" {
   type        = string
-  description = "The AMI ID for the EC2 instance"
+  description = "AMI ID for the EC2 instance. If empty, Terraform will auto-select the latest Amazon Linux 2023 ARM64 AMI."
+  default     = ""
 }
 
 variable "instance_type" {
@@ -49,8 +50,20 @@ variable "vpc_cidr" {
   description = "The CIDR block for the VPC"
 }
 
-variable "docker_image" { 
-  type = string 
+variable "docker_image" {
+  type        = string
   description = "The Docker image to deploy on the EC2 instance"
+}
+
+variable "ssh_cidr" {
+  type        = string
+  description = "CIDR allowed to SSH (port 22). Use your public IP with /32, e.g. 1.2.3.4/32. Empty disables SSH ingress rule."
+  default     = ""
+}
+
+variable "ssh_key_name" {
+  type        = string
+  description = "EC2 Key Pair name to enable SSH. Empty keeps key_name unset (SSH via key pair won't work)."
+  default     = ""
 }
 
