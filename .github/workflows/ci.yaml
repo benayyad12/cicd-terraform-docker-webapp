@@ -1,0 +1,88 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - Dockerfile
+      - app/**
+      - .github/workflows/ci.yaml
+
+env:
+  IMAGE_REF: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
+
+jobs:
+  build:
+    runs-on: ci-docker-runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Scan Dockerfile (Trivy config)
+        run: |
+          trivy config \
+            --severity HIGH,CRITICAL \
+            --file-patterns "dockerfile:Dockerfile" \
+            .
+
+      - name: Build Docker image
+        run: docker build -t "$IMAGE_REF" .
+
+      - name: Save Docker image as artifact
+        run: docker save "$IMAGE_REF" -o image.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar
+
+  scan_trivy:
+    runs-on: ci-docker-runner
+    needs: build
+
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Load Docker image
+        run: docker load -i image.tar
+
+      - name: Run Trivy scan (image)
+        run: |
+          trivy image \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            "$IMAGE_REF"
+
+  push_image:
+    runs-on: ci-docker-runner
+    needs: scan_trivy
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Load Docker image
+        run: docker load -i image.tar
+
+      - name: Push Docker image to Docker Hub
+        run: docker push "$IMAGE_REF"
