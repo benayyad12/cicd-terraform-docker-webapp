@@ -48,3 +48,9 @@ variable "vpc_cidr" {
   type        = string
   description = "The CIDR block for the VPC"
 }
+
+variable "docker_image" { 
+  type = string 
+  description = "The Docker image to deploy on the EC2 instance"
+}
+

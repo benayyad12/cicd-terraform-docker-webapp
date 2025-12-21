@@ -2,6 +2,7 @@ module "ec2" {
   source        = "./modules/ec2"
   ami_id        = var.ami
   instance_type = var.instance_type
+  docker_image  = var.docker_image
 }
 
 module "s3" {
