@@ -4,6 +4,10 @@ resource "random_id" "suffix" {
 
 resource "aws_s3_bucket" "s3_bkt" {
   bucket = "tfstatebuckets3-${random_id.suffix.hex}"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 
