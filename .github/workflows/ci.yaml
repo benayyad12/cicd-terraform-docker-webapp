@@ -14,7 +14,7 @@ env:
 
 jobs:
   build:
-    runs-on: ci-docker-runner
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout code
@@ -46,7 +46,7 @@ jobs:
           path: image.tar
 
   scan_trivy:
-    runs-on: ci-docker-runner
+    runs-on: [self-hosted]
     needs: build
 
     steps:
@@ -66,7 +66,7 @@ jobs:
             "$IMAGE_REF"
 
   push_image:
-    runs-on: ci-docker-runner
+    runs-on: [self-hosted]
     needs: scan_trivy
 
     steps:
