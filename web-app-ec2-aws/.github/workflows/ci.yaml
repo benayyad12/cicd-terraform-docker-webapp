@@ -6,7 +6,11 @@ on:
       - main
     paths:
       - Dockerfile
-      - ci.yaml
+      - .github/workflows/ci.yaml
+      - app/**
+
+env:
+  IMAGE_REF: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
 
 jobs:
   build:
@@ -32,11 +36,28 @@ jobs:
     - name: Build Docker image
       run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} .
 
+    - name: Save Docker image as artifact
+      run: docker save ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} -o nginx-image.tar
+
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: nginx-image.tar
+
 
   scan_trivy:
     runs-on: ci-docker-runner
     needs: build
     steps:
+        - name: Download Docker image artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: docker-image
+
+        - name: Load Docker image
+          run: docker load -i nginx-image.tar
+
         - name: Run Trivy scan
           run: |
             trivy image \
@@ -53,6 +74,15 @@ jobs:
           with:
             username: ${{ secrets.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: Download Docker image artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: docker-image
+
+        - name: Load Docker image
+          run: docker load -i image.tar
+
         - name: Push Docker image to Docker Hub
           run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
 

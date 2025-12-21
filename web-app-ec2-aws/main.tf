@@ -18,13 +18,13 @@ module "dynamodb" {
 }
 
 module "vpc" {
-  source   = "./modules/vpc"
-  vpc_cidr = var.vpc_cidr
+  source                    = "./modules/vpc"
+  vpc_cidr                  = var.vpc_cidr
   wrapped_security_group_id = module.security_group.aws_security_group_id
 
 }
 
 module "security_group" {
-  source     = "./modules/security_group"
-  wrapper_vpc_id = module.vpc.vpc_id  
+  source         = "./modules/security_group"
+  wrapper_vpc_id = module.vpc.vpc_id
 }
