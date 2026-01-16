@@ -46,6 +46,7 @@ module "s3" {
 
 module "dynamodb" {
   source        = "./modules/dynamodb"
+  count         = var.enable_dynamodb_lock_table ? 1 : 0
   dynamodb_name = var.dynamodb_name
   pay_mode      = var.pay_mode
   hkey          = var.hkey

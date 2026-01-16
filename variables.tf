@@ -21,9 +21,16 @@ variable "bucket_name" {
   description = "s3 bucket for terraform backend"
 }
 
+variable "enable_dynamodb_lock_table" {
+  type        = bool
+  description = "(Optional / legacy) Create a DynamoDB table for Terraform state locking. Not required when using S3 lockfiles (use_lockfile=true)."
+  default     = false
+}
+
 variable "dynamodb_name" {
   type        = string
-  description = "dynamo db table for state locking"
+  description = "(Optional / legacy) DynamoDB table name for Terraform state locking"
+  default     = "dynamodb-state"
 }
 
 variable "backend_key" {

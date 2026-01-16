@@ -14,7 +14,7 @@ End-to-end DevOps demo: build a Dockerized Nginx web app with GitHub Actions, pu
   - Security group allowing HTTP (80) from the internet
   - Optional SSH access for AWS **EC2 Instance Connect** (22) via a configurable CIDR
   - EC2 instance that installs Docker on boot and runs the configured Docker image on port 80
-  - S3 + DynamoDB used for Terraform remote state and state locking
+  - S3 used for Terraform remote state (with S3 lockfile-based state locking)
 
 ## Architecture (high level)
 
@@ -41,7 +41,7 @@ AWS EC2 (public subnet) ---> Internet ---> Browser: http://<public-ip>/
   - EC2: [modules/ec2](modules/ec2)
   - Security Group: [modules/security_group](modules/security_group)
   - S3 backend bucket: [modules/s3](modules/s3)
-  - DynamoDB lock table: [modules/dynamodb](modules/dynamodb)
+  - DynamoDB lock table (optional / legacy): [modules/dynamodb](modules/dynamodb)
 - Terraform quick checks: [check-terraform.sh](check-terraform.sh)
 
 ## Prerequisites
